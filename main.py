@@ -6,39 +6,12 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import math
-import winsound
 from datetime import datetime, time as dt_time
 
 # 取得股價資訊
 def get_stock_data(ticker):
     try:
         stock = twstock.Stock(ticker)
-        current_time = datetime.now().time()
-        start_time = dt_time(9, 0)  # 上午9點
-        end_time = dt_time(13, 30)  # 下午1點30分
-        if start_time <= current_time <= end_time:
-            stock_realtime = twstock.realtime.get(ticker)
-            s = stock_realtime["realtime"]
-            data_realtime = {
-                'date': [stock_realtime['info']['time']],
-                'open': [float(s['open'])],
-                'high': [float(s['high'])],
-                'low': [float(s['low'])],
-                'close': [float(s['latest_trade_price'])],
-                'volume': [int(s['accumulate_trade_volume'])*1000]
-            }
-            data = {
-                'date': stock.date,
-                'open': stock.open,
-                'high': stock.high,
-                'low': stock.low,
-                'close': stock.close,
-                'volume': stock.capacity
-            }
-            df = pd.DataFrame(data)
-            df_realtime = pd.DataFrame(data_realtime)
-            df = pd.concat([df, df_realtime], ignore_index=True)
-            return ticker, df
         data = {
             'date': stock.date,
             'open': stock.open,
@@ -55,7 +28,9 @@ def get_stock_data(ticker):
 
 # 收下影線並收盤價與最低價的差大於最低價的 1%
 def is_hammer(one):
-    return one['close'] - one['low'] >= one['low'] * 0.01
+    if (one['close'] < 150) and (one['close'] > one['low']) and (one['close'] - one['low'] >= one['low'] * 0.01):
+        return True
+    return False
 
 # 當日最低價創五日新低
 def lower(con_tinue):
@@ -101,8 +76,6 @@ def select_stock():
 
         for i, future in enumerate(as_completed(future_to_stock), 1):
             stockNum = future_to_stock[future]
-            # if i % 200 == 0:
-            #     time.sleep(60)
             try:
                 result = future.result()
                 if result:
@@ -110,12 +83,14 @@ def select_stock():
                 print(f"Processing {i}/{total_stocks}: {stockNum} completed")
             except Exception as e:
                 print(f"Error processing {stockNum}: {e}")
-    winsound.Beep(800, 2000)
     return selected_stocks
 
 def main():
     selected_stocks = select_stock()
-    # selected_stocks = select_stock()
+    print("選股結果：")
+    print(selected_stocks)
+    input("確認後按 Enter 繼續...")
+    
     webdriver_path = 'E:\\程式教學\\selectStock\\chromedriver-win64\\chromedriver.exe'
     options = webdriver.ChromeOptions()
     options.add_argument('--start-maximized')
@@ -130,13 +105,24 @@ def main():
         browsers.append(driver)
         start_index = i * max_tabs_per_browser
         end_index = min(start_index + max_tabs_per_browser, len(selected_stocks))
-        for stock in selected_stocks[start_index:end_index]:
-            url = f'https://www.fugle.tw/tradingview/{stock}'
-            driver.execute_script(f"window.open('{url}', '_blank');")
+        for j, stock in enumerate(selected_stocks[start_index:end_index]):
+            url = f'https://histock.tw/stock/tchart.aspx?no={stock}'
+            if j == 0:
+                driver.get(url)  # 第一次呼叫 driver.get() 以顯示第一頁內容
+            else:
+                driver.execute_script(f"window.open('{url}', '_blank');")
 
-    time.sleep(1000000)
-    for driver in browsers:
-        driver.quit()
+    try:
+        while any(driver.window_handles for driver in browsers):
+            time.sleep(1)
+    except Exception as e:
+        print(f"Error while monitoring browser windows: {e}")
+    finally:
+        for driver in browsers:
+            try:
+                driver.quit()
+            except Exception as e:
+                print(f"Error while closing browser: {e}")
 
 if __name__ == "__main__":
     main()

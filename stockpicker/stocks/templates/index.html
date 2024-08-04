@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>K線圖</title>
+    <script src="https://unpkg.com/lightweight-charts@3.3.0/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        #chart {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chart"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/data/')
+        .then(response => response.json())
+        .then(result => {
+            const data = result.data;
+            const ohlc = [];
+            const volume = [];
+
+            data.forEach(item => {
+                const date = new Date(item.Date).getTime() / 1000;
+                ohlc.push({ time: date, open: item.Open, high: item.High, low: item.Low, close: item.Close });
+                volume.push({ time: date, value: item.Volume });
+            });
+
+            const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+                width: document.getElementById('chart').clientWidth,
+                height: 600,
+                layout: {
+                    backgroundColor: '#ffffff',
+                    textColor: '#000000',
+                },
+                grid: {
+                    vertLines: {
+                        color: '#eeeeee',
+                    },
+                    horzLines: {
+                        color: '#eeeeee',
+                    },
+                },
+                timeScale: {
+                    borderColor: '#cccccc',
+                },
+                rightPriceScale: {
+                    borderColor: '#cccccc',
+                },
+            });
+
+            const candleSeries = chart.addCandlestickSeries({
+                upColor: 'green',
+                downColor: 'red',
+                borderDownColor: 'red',
+                borderUpColor: 'green',
+                wickDownColor: 'red',
+                wickUpColor: 'green',
+            });
+
+            candleSeries.setData(ohlc);
+
+            const volumeSeries = chart.addHistogramSeries({
+                color: '#26a69a',
+                priceFormat: {
+                    type: 'volume',
+                },
+                overlay: true,
+                scaleMargins: {
+                    top: 0.8,
+                    bottom: 0,
+                },
+            });
+
+            volumeSeries.setData(volume);
+        });
+});
+</script>
+
+</body>
+</html>
