@@ -1,35 +1,41 @@
-import twstock
 import pandas as pd
-import json
+import json, requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # 取得股價資訊
 def get_stock_data(ticker):
     try:
-        stock = twstock.Stock(ticker)
+        html = requests.get('https://ws.api.cnyes.com/ws/api/v1/charting/history?resolution=D&symbol=TWS:%s:STOCK&from=1727395200&to=1686787200' %(ticker))
+        content = json.loads(html.text)
+        open = content['data']['o']
+        high = content['data']['h']
+        low = content['data']['l']
+        close = content['data']['c']
+        volume = content['data']['v']
         data = {
-            'date': stock.date,
-            'open': stock.open,
-            'high': stock.high,
-            'low': stock.low,
-            'close': stock.close,
-            'volume': stock.capacity
+            'open': open,
+            'high': high,
+            'low': low,
+            'close': close,
+            'volume': volume
         }
-        df = pd.DataFrame(data)
-        return ticker, df
+        df = pd.DataFrame(data=data)
+        df_reversed = df.iloc[::-1]
+        return ticker, df_reversed
     except Exception as e:
         print(f"Error fetching data for {ticker}: {e}")
         return ticker, None
 
 # 收下影線並收盤價與最低價的差大於最低價的 1%
 def is_hammer(one):
-    if (one['close'] < 150) and (one['close'] > one['low']) and (one['close'] - one['low'] >= one['low'] * 0.01):
+    if (one['close'] < 100) and (one['close'] > one['low']) and (one['close'] - one['low'] >= one['low'] * 0.01):
         return True
     return False
 
 # 當日最低價創五日新低
 def lower(con_tinue):
     try:
+        # 如果這五天最低價就是今天最低價的話
         return con_tinue['low'].iloc[-1] == con_tinue['low'].rolling(window=5).min().iloc[-1]
     except IndexError:
         return False
@@ -47,36 +53,38 @@ def red(one):
 
 # 量能大於 100 張
 def volume(one):
-    return one['volume'] > 500000
+    return one['volume'] > 500
 
 # 執行選股
 def process_stock(stockNum):
     ticker, con_tinue = get_stock_data(stockNum)
     if con_tinue is None or len(con_tinue) < 30:
         return None
-    one = con_tinue.iloc[-1]
+    one = con_tinue.iloc[-1] 
     if lower(con_tinue) and is_hammer(one) and ma(con_tinue) and red(one) and volume(one):
         return ticker
     return None
-
+import time
 def select_stock():
-    with open('E:\程式教學\selectStock\stockpicker\stocks\stock.json', encoding='utf-8') as f:
-        stock_collection = json.load(f)
+    # s = time.time()
+    # with open('E:\程式教學\selectStock\stockpicker\stocks\stock.json', encoding='utf-8') as f:
+    #     stock_collection = json.load(f)
+    # selected_stocks = [] 
+    # total_stocks = len(stock_collection)
+    # # 60是最快的
+    # with ThreadPoolExecutor(max_workers=60) as executor:
+    #     future_to_stock = {executor.submit(process_stock, stockNum): stockNum for stockNum in stock_collection}
 
-    selected_stocks = [] 
-    total_stocks = len(stock_collection)
-
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        future_to_stock = {executor.submit(process_stock, stockNum): stockNum for stockNum in stock_collection}
-
-        for i, future in enumerate(as_completed(future_to_stock), 1):
-            stockNum = future_to_stock[future]
-            try:
-                result = future.result()
-                if result:
-                    selected_stocks.append(result)
-                print(f"Processing {i}/{total_stocks}: {stockNum} completed")
-            except Exception as e:
-                print(f"Error processing {stockNum}: {e}")
-    # selected_stocks = ['3466', '3623', '5206', '5324', '5529', '1110', '1453', '1805', '1806', '1903', '2303', '2362', '2501', '2504', '2505', '2506', '2515', '2514', '2527', '2528', '2534', '2530', '2538', '2537', '2540', '2548', '2547', '2597', '2915', '3056', '5515', '5525', '5533', '8374', '8462', '9917', '9940', '9946']
+    #     for i, future in enumerate(as_completed(future_to_stock), 1):
+    #         stockNum = future_to_stock[future]
+    #         try:
+    #             result = future.result()
+    #             if result:
+    #                 selected_stocks.append(result)
+    #             print(f"Processing {i}/{total_stocks}: {stockNum} completed")
+    #         except Exception as e:
+    #             print(f"Error processing {stockNum}: {e}")
+    selected_stocks = ['3466', '3623', '5206', '5324', '5529', '1110', '1453', '1805', '1806', '1903', '2303', '2362', '2501', '2504', '2505', '2506', '2515', '2514', '2527', '2528', '2534', '2530', '2538', '2537', '2540', '2548', '2547', '2597', '2915', '3056', '5515', '5525', '5533', '8374', '8462', '9917', '9940', '9946']
+    e = time.time()
+    # print(e-s)
     return selected_stocks

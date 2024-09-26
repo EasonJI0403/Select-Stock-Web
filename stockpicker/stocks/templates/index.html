@@ -4,25 +4,33 @@
     <meta charset="UTF-8">
     <title>選股網</title>
     <style>
+        /* 全域性設置 */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap; /* 允許換行 */
             margin: 0;
             padding: 0;
         }
 
         #left {
-            width: 70%; /* 左側圖表佔70%的寬度 */
+            flex: 1 1 70%; /* 允許調整，初始為70%寬度 */
             padding: 10px;
+            box-sizing: border-box;
+            height: 100vh; /* 設置與視窗高度相同 */
         }
 
         #right {
-            width: 30%; /* 右側選股佔30%的寬度 */
+            flex: 1 1 30%; /* 允許調整，初始為30%寬度 */
             padding: 10px;
             background-color: #f8f8f8;
             border-left: 1px solid #ddd;
             height: 100vh;  /* 設置固定高度 */
             overflow-y: auto;  /* 啟用垂直滾動條 */
+            box-sizing: border-box;
         }
         
         /* 隱藏滾動條 */
@@ -35,15 +43,15 @@
             scrollbar-width: none;  /* 用於 Firefox */
         }
 
-        #chart {
+        #tradingview_chart {
             width: 100%;  
-            height: 600px;  
+            height: calc(100vh - 50px);  
         }
 
-        h1 {
+        /* h1 {
             text-align: center;
             margin-bottom: 20px;
-        }
+        } */
 
         #stock-results {
             width: 100%;
@@ -54,7 +62,8 @@
 
         #stock-results th, #stock-results td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
+            text-align: center;
         }
 
         #stock-results th {
@@ -77,8 +86,8 @@
 </head>
 <body>
     <div id="left">
-        <h1>TradingView Lightweight Chart</h1>
-        <div id="chart"></div>
+        <!-- <h1>TradingView 高級圖表</h1> -->
+        <div id="tradingview_chart"></div>
     </div>
 
     <div id="right">
@@ -98,53 +107,26 @@
         </table>
     </div>
 
-    <!-- 引入 Lightweight Charts 的 JavaScript 庫 -->
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- 引入 TradingView 的 JavaScript 庫 -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-            width: document.getElementById('chart').offsetWidth,
-            height: 600,
-            layout: {
-                backgroundColor: '#FFFFFF',
-                textColor: '#000',
-            },
-            grid: {
-                vertLines: {
-                    color: '#e1e1e1',
-                },
-                horzLines: {
-                    color: '#e1e1e1',
-                },
-            },
-        });
-
-        window.addEventListener('resize', () => {
-            chart.applyOptions({ width: document.getElementById('chart').offsetWidth });
-        });
-
-        const candlestickSeries = chart.addCandlestickSeries();
-
-        // 從後端獲取股價數據並更新圖表
+        // 初始化 TradingView 圖表
         function loadChart(ticker, name) {
-            fetch(`/data/?ticker=${ticker}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                        return;
-                    }
-                    document.querySelector('h1').textContent = `${ticker} ${name}`;  // 顯示股票代碼與名稱
-                    const chartData = data.data.map(item => ({
-                        time: new Date(item.Date).getTime() / 1000,  // 將日期轉換為 UNIX 時間戳
-                        open: item.Open,
-                        high: item.High,
-                        low: item.Low,
-                        close: item.Close,
-                    }));
-
-                    candlestickSeries.setData(chartData);
-                })
-                .catch(error => console.error('Error fetching data:', error));
+            new TradingView.widget({
+                "width": '100%',
+                "height": '100%',
+                "symbol": ticker,  // 使用正確的格式顯示股票代碼，如 TWSE:1453
+                "interval": "D",
+                "timezone": "Etc/UTC",
+                "theme": "light",
+                "style": "1",
+                "locale": "zh_TW",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "allow_symbol_change": true,
+                "container_id": "tradingview_chart"
+            });
+            // document.querySelector('h1').textContent = `${ticker} ${name}`;  // 更新標題顯示股票代碼與名稱
         }
 
         // 從後端選股並顯示結果
