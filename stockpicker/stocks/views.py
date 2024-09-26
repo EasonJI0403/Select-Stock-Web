@@ -6,7 +6,7 @@ from .stock_selector import select_stock
 from fugle_marketdata import RestClient
 import datetime as d
 
-key = "Njg1M2VkY2ItZjQ2NC00M2VjLTk5NjMtODFlMjA3YzA2NzdlIDY3NGQ3ZTRmLWZkNDktNGVkNy1iMTkyLTUzZDk4ODY4YzkwMw=="
+key = "輸入你的API KEY"
 client = RestClient(api_key = key)  # 輸入您的 API key
 
 # 返回主頁面
