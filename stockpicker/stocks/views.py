@@ -6,6 +6,7 @@ from .stock_selector import select_stock
 from fugle_marketdata import RestClient
 import datetime as d
 import json, requests
+from django.http import StreamingHttpResponse
 
 key = "Njg1M2VkY2ItZjQ2NC00M2VjLTk5NjMtODFlMjA3YzA2NzdlIDY3NGQ3ZTRmLWZkNDktNGVkNy1iMTkyLTUzZDk4ODY4YzkwMw=="
 client = RestClient(api_key = key)  # 輸入您的 API key
@@ -36,9 +37,17 @@ def index(request):
 
 # 選股功能 API
 def select_stock_view(request):
-    stock_codes = select_stock()  # 調用選股程式
-    selected_stocks = [get_stock_info(code) for code in stock_codes]
-    return JsonResponse({'selected_stocks': selected_stocks})  # 返回選股結果
+    # 使用 StreamingHttpResponse 逐步返回數據
+    response = StreamingHttpResponse(stock_stream_generator(), content_type='text/event-stream')
+    return response
+
+def stock_stream_generator():
+    for message in select_stock():
+        if "completed" in message["status"]:
+            # 確保這裡返回的 selected_stocks 中包含正確的股票資訊
+            selected_stocks = [get_stock_info(stock) for stock in message["selected_stocks"]]
+            message["selected_stocks"] = selected_stocks
+        yield f"data: {json.dumps(message)}\n\n"
 
 def get_stock_info(stock_code):
     # 一個月前的日期

@@ -1,249 +1,232 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>選股網</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: space-between;
-            margin: 0;
-            padding: 0;
-        }
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>選股網</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: space-between;
+                margin: 0;
+                padding: 0;
+            }
 
-        #left {
-            width: 70%; /* 左側圖表佔70%的寬度 */
-            padding: 10px;
-        }
+            #left {
+                width: 70%; /* 左側圖表佔70%的寬度 */
+                padding: 10px;
+            }
 
-        #right {
-            width: 30%; /* 右側選股佔30%的寬度 */
-            padding: 10px;
-            background-color: #f8f8f8;
-            border-left: 1px solid #ddd;
-            height: 100vh;  /* 設置固定高度 */
-            overflow-y: auto;  /* 啟用垂直滾動條 */
-        }
+            #right {
+                width: 30%; /* 右側選股佔30%的寬度 */
+                padding: 10px;
+                background-color: #f8f8f8;
+                border-left: 1px solid #ddd;
+                height: 100vh;  /* 設置固定高度 */
+                overflow-y: auto;  /* 啟用垂直滾動條 */
+            }
 
-        /* 隱藏滾動條 */
-        #right::-webkit-scrollbar {
-            display: none; /* 用於 Chrome、Safari 和 Edge */
-        }
+            /* 隱藏滾動條 */
+            #right::-webkit-scrollbar {
+                display: none; /* 用於 Chrome、Safari 和 Edge */
+            }
 
-        #right {
-            -ms-overflow-style: none;  /* 用於 Internet Explorer 和 Edge */
-            scrollbar-width: none;  /* 用於 Firefox */
-        }
+            #right {
+                -ms-overflow-style: none;  /* 用於 Internet Explorer 和 Edge */
+                scrollbar-width: none;  /* 用於 Firefox */
+            }
 
-        #chart {
-            width: 100%;  
-            height: 600px;  
-        }
+            #chart {
+                width: 100%;  
+                height: 600px;  
+            }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+            h1 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
 
-        #stock-results {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-            background-color: #f9f9f9;
-        }
+            #stock-results {
+                width: 100%;
+                border-collapse: collapse;
+                text-align: center;
+                background-color: #f9f9f9;
+            }
 
-        #stock-results th, #stock-results td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
+            #stock-results th, #stock-results td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
 
-        #stock-results th {
-            background-color: #3069A1;
-            color: white;
-            padding: 0.5rem 1rem; /* 設置內邊距，讓按鈕看起來更飽滿 */
-            border: none;  /*移除預設邊框 */
-            border-radius: 0.375rem; /* 設置圓角，使按鈕變圓滑 */
-            font-size: 16px; /* 調整字體大小 */
-            font-weight: bold; /* 字體加粗 */
-        }
+            #stock-results th {
+                background-color: #3069A1;
+                color: white;
+                padding: 0.5rem 1rem; /* 設置內邊距，讓按鈕看起來更飽滿 */
+                border: none;  /*移除預設邊框 */
+                border-radius: 0.375rem; /* 設置圓角，使按鈕變圓滑 */
+                font-size: 16px; /* 調整字體大小 */
+                font-weight: bold; /* 字體加粗 */
+            }
 
-        #stock-results tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
+            #stock-results tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
 
 
-        #stock-results tr:hover {
-            background-color: #e2e2e2;
-        }
+            #stock-results tr:hover {
+                background-color: #e2e2e2;
+            }
 
-        #select-button {
-            background-color: #3069A1; /* 設定按鈕的背景色 */
-            color: white; /* 設定文字顏色為白色 */
-            padding: 0.5rem 1rem; /* 設置內邊距，讓按鈕看起來更飽滿 */
-            border: none; /* 移除預設邊框 */
-            border-radius: 0.375rem; /* 設置圓角，使按鈕變圓滑 */
-            font-size: 16px; /* 調整字體大小 */
-            font-weight: bold; /* 字體加粗 */
-            cursor: pointer; /* 當滑鼠移到按鈕時顯示指針 */
-            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* 添加過渡效果 */
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* 添加輕微的陰影效果 */
-            margin-bottom: 2px; /* 增加按鈕與下方元素之間的距離 */
-        }
+            #select-button {
+                background-color: #3069A1; /* 設定按鈕的背景色 */
+                color: white; /* 設定文字顏色為白色 */
+                padding: 0.5rem 1rem; /* 設置內邊距，讓按鈕看起來更飽滿 */
+                border: none; /* 移除預設邊框 */
+                border-radius: 0.375rem; /* 設置圓角，使按鈕變圓滑 */
+                font-size: 16px; /* 調整字體大小 */
+                font-weight: bold; /* 字體加粗 */
+                cursor: pointer; /* 當滑鼠移到按鈕時顯示指針 */
+                transition: background-color 0.3s ease, box-shadow 0.3s ease; /* 添加過渡效果 */
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* 添加輕微的陰影效果 */
+                margin-bottom: 2px; /* 增加按鈕與下方元素之間的距離 */
+            }
 
-        #select-button:hover:enabled {
-            background-color: #5399e4; /* 按鈕懸停時的顏色 */
-        }
+            #select-button:hover:enabled {
+                background-color: #5399e4; /* 按鈕懸停時的顏色 */
+            }
 
-        #select-button:disabled {
-            background-color: #b3b3b3; /* 按鈕禁用時的背景色 */
-            cursor: not-allowed; /* 禁用時顯示的滑鼠指針 */
-        }
+            #select-button:disabled {
+                background-color: #b3b3b3; /* 按鈕禁用時的背景色 */
+                cursor: not-allowed; /* 禁用時顯示的滑鼠指針 */
+            }
 
-        #progress-bar {
-            width: 100%;
-            height: 20px;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div id="left">
-        <h1>Candlestick Chart</h1>
-        <div id="chart"></div>
-    </div>
+            #progress-bar {
+                width: 100%;
+                height: 20px;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="left">
+            <h1>Candlestick Chart</h1>
+            <div id="chart"></div>
+        </div>
 
-    <div id="right">
-        <h2>台股報價</h2>
-        <button id="select-button" onclick="getSelectedStocks()">開始選股</button>
-        <progress id="progress-bar" value="0" max="100"></progress>
-        <table id="stock-results">
-            <thead>
-                <tr>
-                    <th>股票代碼</th>
-                    <th>股票名稱</th>
-                    <th>當前價</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- 選股結果將動態插入到這裡 -->
-            </tbody>
-        </table>
-    </div>
+        <div id="right">
+            <h2>台股報價</h2>
+            <button id="select-button" onclick="getSelectedStocks()">開始選股</button>
+            <progress id="progress-bar" value="0" max="100"></progress>
+            <table id="stock-results">
+                <thead>
+                    <tr>
+                        <th>股票代碼</th>
+                        <th>股票名稱</th>
+                        <th>當前價</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 選股結果將動態插入到這裡 -->
+                </tbody>
+            </table>
+        </div>
 
-    <!-- 引入 Lightweight Charts 的 JavaScript 庫 -->
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-    <script>
-        const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-            width: document.getElementById('chart').offsetWidth,
-            height: 600,
-            layout: {
-                backgroundColor: '#FFFFFF',
-                textColor: '#000',
-            },
-            grid: {
-                vertLines: {
-                    color: '#e1e1e1',
+        <!-- 引入 Lightweight Charts 的 JavaScript 庫 -->
+        <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+        <script>
+            const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+                width: document.getElementById('chart').offsetWidth,
+                height: 600,
+                layout: {
+                    backgroundColor: '#FFFFFF',
+                    textColor: '#000',
                 },
-                horzLines: {
-                    color: '#e1e1e1',
+                grid: {
+                    vertLines: {
+                        color: '#e1e1e1',
+                    },
+                    horzLines: {
+                        color: '#e1e1e1',
+                    },
                 },
-            },
-        });
+            });
 
-        window.addEventListener('resize', () => {
-            chart.applyOptions({ width: document.getElementById('chart').offsetWidth });
-        });
+            window.addEventListener('resize', () => {
+                chart.applyOptions({ width: document.getElementById('chart').offsetWidth });
+            });
 
-        const candlestickSeries = chart.addCandlestickSeries();
+            const candlestickSeries = chart.addCandlestickSeries();
 
-        // 從後端獲取股價數據並更新圖表
-        function loadChart(ticker, name) {
-            fetch(`/data/?ticker=${ticker}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                        return;
-                    }
-                    document.querySelector('h1').textContent = `${ticker} ${name}`;  // 顯示股票代碼與名稱
-                    const chartData = data.data.map(item => ({
-                        time: new Date(item.Date).getTime() / 1000,  // 將日期轉換為 UNIX 時間戳
-                        open: item.Open,
-                        high: item.High,
-                        low: item.Low,
-                        close: item.Close,
-                    }));
+            // 從後端獲取股價數據並更新圖表
+            function loadChart(ticker, name) {
+                fetch(`/data/?ticker=${ticker}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                            return;
+                        }
+                        document.querySelector('h1').textContent = `${ticker} ${name}`;  // 顯示股票代碼與名稱
+                        const chartData = data.data.map(item => ({
+                            time: new Date(item.Date).getTime() / 1000,  // 將日期轉換為 UNIX 時間戳
+                            open: item.Open,
+                            high: item.High,
+                            low: item.Low,
+                            close: item.Close,
+                        }));
 
-                    candlestickSeries.setData(chartData);
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }
+                        candlestickSeries.setData(chartData);
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            }
 
-        // 從後端選股並顯示結果
-        async function getSelectedStocks() {
-            const selectButton = document.getElementById('select-button');
-            const progressBar = document.getElementById('progress-bar');
-            const tableBody = document.querySelector('#stock-results tbody');
-            
-            selectButton.disabled = true;  // 禁用按鈕
-            selectButton.textContent = '選股中...';  // 修改按鈕文本
-            progressBar.value = 0;  // 重置進度條
-            tableBody.innerHTML = '';  // 清空之前的選股結果
+            // 從後端選股並顯示結果
+            function getSelectedStocks() {
+                const selectButton = document.getElementById('select-button');
+                const progressBar = document.getElementById('progress-bar');
+                const tableBody = document.querySelector('#stock-results tbody');
+                
+                selectButton.disabled = true;  // 禁用按鈕
+                selectButton.textContent = '選股中...';  // 修改按鈕文本
+                progressBar.value = 0;  // 重置進度條
+                tableBody.innerHTML = '';  // 清空之前的選股結果
 
-            try {
-                const response = await fetch('/select-stock/');
-                const data = await response.json();
-                const totalStocks = data.selected_stocks.length;
+                const eventSource = new EventSource('/select-stock/');
 
-                if (totalStocks > 0) {
-                    let currentStock = 0;
+                eventSource.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
 
-                    function processNextStock() {
-                        if (currentStock < totalStocks) {
-                            const stock = data.selected_stocks[currentStock];
-                            currentStock++;
+                    if (data.status === 'processing') {
+                        progressBar.value = data.progress;
 
+                    } else if (data.status === 'completed') {
+                        // 顯示最終選股結果
+                        const selectedStocks = data.selected_stocks;
+                        selectedStocks.forEach(stock => {
                             const row = document.createElement('tr');
                             row.onclick = function() {
                                 loadChart(stock.code, stock.name);  // 點擊時加載該股票的圖表
                             };
                             row.innerHTML = `
-                                <td>${stock.code}</td>
-                                <td>${stock.name}</td>
-                                <td>${stock.current_price}</td>
+                                <td>${stock.code || 'N/A'}</td>
+                                <td>${stock.name || 'N/A'}</td>
+                                <td>${stock.current_price || 'N/A'}</td>
                             `;
                             tableBody.appendChild(row);
+                    });
 
-                            // 更新進度條
-                            progressBar.value = (currentStock / totalStocks) * 100;
-
-                            // 使用 setTimeout 來讓瀏覽器有機會更新 UI
-                            setTimeout(processNextStock, 0);
-                        } else {
-                            // 所有股票都已處理完成
-                            selectButton.disabled = false;  // 啟用按鈕
-                            selectButton.textContent = '開始選股';  // 恢復按鈕文本
-                        }
+                    selectButton.disabled = false;
+                    selectButton.textContent = '開始選股';
+                    eventSource.close();
                     }
+                };
 
-                    // 開始處理股票列表
-                    processNextStock();
-
-                } else {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="3">沒有選中的股票</td>`;
-                    tableBody.appendChild(row);
-
-                    selectButton.disabled = false;  // 啟用按鈕
-                    selectButton.textContent = '開始選股';  // 恢復按鈕文本
-                }
-
-            } catch (error) {
-                console.error('Error fetching selected stocks:', error);
-                selectButton.disabled = false;  // 啟用按鈕
-                selectButton.textContent = '開始選股';  // 恢復按鈕文本
+                eventSource.onerror = function(error) {
+                    console.error('Error in EventSource:', error);
+                    eventSource.close();
+                    selectButton.disabled = false;
+                    selectButton.textContent = '開始選股';
+                };
             }
-        }
-    </script>
-</body>
-</html>
+        </script>
+    </body>
+    </html>

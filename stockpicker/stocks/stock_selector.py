@@ -64,6 +64,7 @@ def process_stock(stockNum):
     if lower(con_tinue) and is_hammer(one) and ma(con_tinue) and red(one) and volume(one):
         return ticker
     return None
+
 import time
 def select_stock():
     s = time.time()
@@ -79,12 +80,29 @@ def select_stock():
             stockNum = future_to_stock[future]
             try:
                 result = future.result()
+                progress = (i / total_stocks) * 100
                 if result:
                     selected_stocks.append(result)
-                print(f"Processing {i}/{total_stocks}: {stockNum} completed")
+                    yield {
+                        "status": "processing",
+                        "progress": progress,
+                    }
+                else:
+                    yield {
+                        "status": "processing",
+                        "progress": progress,
+                    }
+                # print(f"Processing {i}/{total_stocks}: {stockNum} completed")
             except Exception as e:
+                yield {
+                    "status": "error",
+                    "message": f"Error processing {stockNum}: {str(e)}"
+                }
                 print(f"Error processing {stockNum}: {e}")
     # selected_stocks = ['3466', '3623', '5206', '5324']
     e = time.time()
-    # print(e-s)
-    return selected_stocks
+    # 最後回傳完整選股結果
+    yield {
+        "status": "completed",
+        "selected_stocks": selected_stocks
+    }
