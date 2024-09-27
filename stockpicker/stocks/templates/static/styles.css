@@ -103,6 +103,26 @@ h1 {
 
 #progress-bar {
     width: 100%;
-    height: 20px;
+    height: 15px;
+    border-radius: 10px;
+    overflow: hidden;
     margin-bottom: 5px; /* 增加進度條與表格標題之間的間距 */
+    background-color: #e0e0e0; /* 進度條背景顏色 */
+}
+/* 進度條背景部分（WebKit瀏覽器） */
+progress::-webkit-progress-bar {
+    background-color: #c9c6c6; /* 背景顏色 */
+}
+/* 針對 WebKit 瀏覽器的進度部分（已完成部分） */
+#progress-bar::-webkit-progress-value {
+    background: linear-gradient(to right, #99CCFF, #FFB2FF); /* 漸層的綠色 */
+}
+/* 針對 Firefox 的進度部分 */
+#progress-bar::-moz-progress-bar {
+    background: linear-gradient(to right, #4caf50, #81c784); /* 漸層的綠色 */
+}
+
+/* 針對 IE / Edge 的進度部分 */
+#progress-bar::-ms-fill {
+    background: linear-gradient(to right, #4caf50, #81c784); /* 漸層的綠色 */
 }
