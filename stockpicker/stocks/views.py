@@ -1,6 +1,5 @@
 from django.shortcuts import render 
 from django.http import JsonResponse
-import twstock
 import pandas as pd
 from .stock_selector import select_stock
 from fugle_marketdata import RestClient

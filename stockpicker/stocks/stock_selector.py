@@ -45,11 +45,11 @@ def ma(con_tinue):
     con_tinue['MA_long'] = con_tinue['close'].rolling(window=20).mean()
     return con_tinue['close'].iloc[-1] < con_tinue['MA_long'].iloc[-1]
 
-# 紅K不超過 1%
-def red(one):
-    if one['open'] < one['close']:
-        return one['close'] - one['open'] < one['open'] * 0.01
-    return True
+# # 紅K不超過 1%
+# def red(one):
+#     if one['open'] < one['close']:
+#         return one['close'] - one['open'] < one['open'] * 0.01
+#     return Trueand red(one)
 
 # 量能大於 100 張
 def volume(one):
@@ -61,7 +61,7 @@ def process_stock(stockNum):
     if con_tinue is None or len(con_tinue) < 30:
         return None
     one = con_tinue.iloc[-1] 
-    if lower(con_tinue) and is_hammer(one) and ma(con_tinue) and red(one) and volume(one):
+    if lower(con_tinue) and is_hammer(one) and ma(con_tinue)  and volume(one):
         return ticker
     return None
 
