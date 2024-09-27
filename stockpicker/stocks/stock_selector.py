@@ -66,25 +66,25 @@ def process_stock(stockNum):
     return None
 import time
 def select_stock():
-    # s = time.time()
-    # with open('E:\程式教學\selectStock\stockpicker\stocks\stock.json', encoding='utf-8') as f:
-    #     stock_collection = json.load(f)
-    # selected_stocks = [] 
-    # total_stocks = len(stock_collection)
-    # # 60是最快的
-    # with ThreadPoolExecutor(max_workers=60) as executor:
-    #     future_to_stock = {executor.submit(process_stock, stockNum): stockNum for stockNum in stock_collection}
+    s = time.time()
+    with open('E:\程式教學\selectStock\stockpicker\stocks\stock.json', encoding='utf-8') as f:
+        stock_collection = json.load(f)
+    selected_stocks = [] 
+    total_stocks = len(stock_collection)
+    # 60是最快的
+    with ThreadPoolExecutor(max_workers=60) as executor:
+        future_to_stock = {executor.submit(process_stock, stockNum): stockNum for stockNum in stock_collection}
 
-    #     for i, future in enumerate(as_completed(future_to_stock), 1):
-    #         stockNum = future_to_stock[future]
-    #         try:
-    #             result = future.result()
-    #             if result:
-    #                 selected_stocks.append(result)
-    #             print(f"Processing {i}/{total_stocks}: {stockNum} completed")
-    #         except Exception as e:
-    #             print(f"Error processing {stockNum}: {e}")
-    selected_stocks = ['3466', '3623', '5206', '5324', '5529', '1110', '1453', '1805', '1806', '1903', '2303', '2362', '2501', '2504', '2505', '2506', '2515', '2514', '2527', '2528', '2534', '2530', '2538', '2537', '2540', '2548', '2547', '2597', '2915', '3056', '5515', '5525', '5533', '8374', '8462', '9917', '9940', '9946']
+        for i, future in enumerate(as_completed(future_to_stock), 1):
+            stockNum = future_to_stock[future]
+            try:
+                result = future.result()
+                if result:
+                    selected_stocks.append(result)
+                print(f"Processing {i}/{total_stocks}: {stockNum} completed")
+            except Exception as e:
+                print(f"Error processing {stockNum}: {e}")
+    # selected_stocks = ['3466', '3623', '5206', '5324']
     e = time.time()
     # print(e-s)
     return selected_stocks
